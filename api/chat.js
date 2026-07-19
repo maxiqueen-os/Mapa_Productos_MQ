@@ -14,7 +14,7 @@ export default async function handler(req, res) {
 
   try {
     // Conexión directa con el modelo ultrarrápido Gemini 1.5 Flash
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+    const googleResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -24,10 +24,14 @@ export default async function handler(req, res) {
       })
     });
 
-    const data = await response.json();
-    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "El núcleo no devolvió una respuesta válida.";
+    const data = await googleResponse.json();
+    
+    // Extraemos el texto de Gemini
+    const textAI = data.candidates?.[0]?.content?.parts?.[0]?.text || "El núcleo no devolvió una respuesta válida.";
 
-    return res.status(200).json({ reply });
+    // 🚨 AQUÍ ESTÁ EL TRUCO: Lo enviamos como 'response' para que tu HTML lo lea a la primera sin cambiar nada
+    return res.status(200).json({ response: textAI });
+
   } catch (error) {
     return res.status(500).json({ error: 'Error en el enrutador de IA: ' + error.message });
   }
