@@ -555,24 +555,46 @@
             body.scrollTop = body.scrollHeight;
 
             setTimeout(() => {
-                document.getElementById(loadingId).remove();
-                const aiBubble = document.createElement('div');
-                aiBubble.className = 'mq-bubble';
-                
-                let respuesta = `Mapeando requerimiento empresarial. Recomiendo evaluar el portafolio comercial de **MaxiQueen Enterprise Core** para asegurar estabilidad de APIs en base a su consulta.`;
-                if(userMsg.toLowerCase().includes('cfo') || userMsg.toLowerCase().includes('auditor') || userMsg.toLowerCase().includes('financiero')) {
-                    respuesta = `Para requerimientos financieros, el producto idóneo es **Elite Financial Auditor & Business Intelligence** (respaldado por los nodos ID1 e ID2 en infraestructura). Resuelve auditorías lingüísticas masivas en segundos.`;
-                } else if(userMsg.toLowerCase().includes('kyc') || userMsg.toLowerCase().includes('documento') || userMsg.toLowerCase().includes('nexus')) {
-                    respuesta = `El producto **Quantum Nexus** procesa ingesta documental mediante OCR estructurado (nodos internos ID5 e ID11) aislando los datos sensibles por políticas estrictas de privacidad.`;
-                } else if(userMsg.toLowerCase().includes('landing') || userMsg.toLowerCase().includes('marketing') || userMsg.toLowerCase().includes('whatsapp')) {
-                    respuesta = `La suite comercial **AI Commerce & Creator Suite** integra flujos dinámicos automáticos desde una idea hasta el lead en CRM, apalancado en los microservicios ID12, ID13 e ID14.`;
-                }
+    // 1. Remover el indicador de carga
+    const loadingElem = document.getElementById(loadingId);
+    if (loadingElem) loadingElem.remove();
 
-                aiBubble.innerHTML = respuesta.replace(/\n/g, '<br>');
-                body.appendChild(aiBubble);
-                body.scrollTop = body.scrollHeight;
-                hablar(respuesta);
-            }, 950);
+    // 2. Crear la burbuja de la IA
+    const aiBubble = document.createElement('div');
+    aiBubble.className = 'mq-bubble';
+    
+    // Definir la respuesta base
+    let respuesta = `Mapeando requerimiento empresarial. Recomiendo evaluar el portafolio comercial de **MaxiQueen Enterprise Core** para asegurar estabilidad de APIs en base a su consulta.`;
+    
+    // Evaluar intenciones/palabras clave
+    const msgLower = userMsg.toLowerCase();
+    if (msgLower.includes('cfo') || msgLower.includes('auditor') || msgLower.includes('financiero')) {
+        respuesta = `Para requerimientos financieros, el producto idóneo es **Elite Financial Auditor & Business Intelligence** (respaldado por los nodos ID1 e ID2 en infraestructura). Resuelve auditorías lingüísticas masivas en segundos.`;
+    } else if (msgLower.includes('kyc') || msgLower.includes('documento') || msgLower.includes('nexus')) {
+        respuesta = `El producto **Quantum Nexus** procesa ingesta documental mediante OCR estructurado (nodos internos ID5 e ID11) aislando los datos sensibles por políticas estrictas de privacidad.`;
+    } else if (msgLower.includes('landing') || msgLower.includes('marketing') || msgLower.includes('whatsapp')) {
+        respuesta = `La suite comercial **AI Commerce & Creator Suite** integra flujos dinámicos automáticos desde una idea hasta el lead en CRM, apalancado en los microservicios ID12, ID13 e ID14.`;
+    }
+
+    // 3. Pasar el texto limpio a la función de Voz antes de transformarlo a HTML
+    const textoLimpioParaVoz = respuesta.replace(/\*\*/g, '');
+    hablar(textoLimpioParaVoz);
+
+    // 4. Formatear la respuesta para el HTML (Saltos de línea y Negritas de Markdown)
+    let htmlFormateado = respuesta
+        .replace(/\n/g, '<br>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong class="text-amber-400 font-bold">$1</strong>'); // Opcional: Le da el color dorado corporate a las negritas
+
+    aiBubble.innerHTML = htmlFormateado;
+    
+    // 5. Asegurar que 'chatBody' sea el contenedor ".mq-chat-body"
+    const chatBody = document.querySelector('.mq-chat-body') || body;
+    chatBody.appendChild(aiBubble);
+    
+    // Auto-scroll al fondo
+    chatBody.scrollTop = chatBody.scrollHeight;
+
+}, 950);
         });
     </script>
 </body>
