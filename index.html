@@ -533,7 +533,7 @@
         });
     }
 
-    // Manejo del formulario de interacción del ecosistema
+    // 🔥 EN ESTA PARTE ESTABA EL ERROR. AQUÍ YA CONECTA CON TU API REAL:
     document.getElementById('mqChatForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const input = document.getElementById('mqInput');
@@ -543,7 +543,7 @@
         const userMsg = input.value.trim();
         if (!userMsg) return;
 
-        // Renderizar burbuja de usuario
+        // 1. Renderizar burbuja del usuario
         const userBubble = document.createElement('div');
         userBubble.className = 'mq-bubble user';
         userBubble.innerText = userMsg;
@@ -551,52 +551,65 @@
         input.value = '';
         body.scrollTop = body.scrollHeight;
 
-        // Simulación de respuesta orientada a Producto/Estructura Corporativa
+        // 2. Renderizar indicador de carga real
         const loadingId = 'loading-' + Date.now();
         const loadingBubble = document.createElement('div');
         loadingBubble.className = 'mq-bubble text-amber-400 animate-pulse';
         loadingBubble.id = loadingId;
-        loadingBubble.innerText = '⚡ Procesando a través del Router Corporativo de MaxiQueen OS...';
+        loadingBubble.innerText = '⚡ Conectando con el Router de IA MaxiQueen OS...';
         body.appendChild(loadingBubble);
         body.scrollTop = body.scrollHeight;
 
-        setTimeout(() => {
-            // 1. Remover el indicador de carga
+        // 3. Hacer la llamada real al Backend en Vercel
+        try {
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message: userMsg })
+            });
+
+            // Quitar el indicador de carga
             const loadingElem = document.getElementById(loadingId);
             if (loadingElem) loadingElem.remove();
 
-            // 2. Crear la burbuja de la IA
+            if (!response.ok) throw new Error('Error en la respuesta del servidor');
+
+            const data = await response.json();
+            
+            // Lee la respuesta (Soporta 'response' o 'reply' para evitar fallos si cambias de opinión en el backend)
+            let respuestaIA = data.response || data.reply || "No se recibió respuesta válida.";
+
+            // 4. Crear burbuja de respuesta con Inteligencia Artificial real
             const aiBubble = document.createElement('div');
             aiBubble.className = 'mq-bubble';
-            
-            // Definir la respuesta base
-            let respuesta = `Mapeando requerimiento empresarial. Recomiendo evaluar el portafolio comercial de **MaxiQueen Enterprise Core** para asegurar estabilidad de APIs en base a su consulta.`;
-            
-            // Evaluar intenciones/palabras clave
-            const msgLower = userMsg.toLowerCase();
-            if (msgLower.includes('cfo') || msgLower.includes('auditor') || msgLower.includes('financiero')) {
-                respuesta = `Para requerimientos financieros, el producto idóneo es **Elite Financial Auditor & Business Intelligence** (respaldado por los nodos ID1 e ID2 en infraestructura). Resuelve auditorías lingüísticas masivas en segundos.`;
-            } else if (msgLower.includes('kyc') || msgLower.includes('documento') || msgLower.includes('nexus')) {
-                respuesta = `El producto **Quantum Nexus** procesa ingesta documental mediante OCR estructurado (nodos internos ID5 e ID11) aislando los datos sensibles por políticas estrictas de privacidad.`;
-            } else if (msgLower.includes('landing') || msgLower.includes('marketing') || msgLower.includes('whatsapp')) {
-                respuesta = `La suite comercial **AI Commerce & Creator Suite** integra flujos dinámicos automáticos desde una idea hasta el lead en CRM, apalancado en los microservicios ID12, ID13 e ID14.`;
-            }
 
-            // 3. Pasar el texto a la función de Voz antes de transformarlo a HTML
-            hablar(respuesta);
+            // Activar voz
+            hablar(respuestaIA);
 
-            // 4. Formatear la respuesta para el HTML (Saltos de línea y Negritas de Markdown)
-            let htmlFormateado = respuesta
+            // Formatear negritas de Markdown de la IA a HTML
+            let htmlFormateado = respuestaIA
                 .replace(/\n/g, '<br>')
                 .replace(/\*\*(.*?)\*\*/g, '<strong class="text-amber-400 font-bold">$1</strong>');
 
             aiBubble.innerHTML = htmlFormateado;
             
-            // 5. Inserción segura en el contenedor
             body.appendChild(aiBubble);
             body.scrollTop = body.scrollHeight;
 
-        }, 950);
+        } catch (error) {
+            // Manejo de errores por si algo se cae o la API Key falla
+            const loadingElem = document.getElementById(loadingId);
+            if (loadingElem) loadingElem.remove();
+
+            const errorBubble = document.createElement('div');
+            errorBubble.className = 'mq-bubble text-red-400';
+            errorBubble.innerText = '❌ Error de enlace: No se pudo conectar con los nodos de la IA.';
+            body.appendChild(errorBubble);
+            body.scrollTop = body.scrollHeight;
+            console.error(error);
+        }
     });
 </script>
 </body>
