@@ -436,42 +436,40 @@
             </section>
         </main>
     </div>
-
-    <!-- SECCIÓN 4: CHAT INTEGRADO DIRECTIVO REORIENTADO COMERCIALMENTE -->
-    <section class="mq-chat minimized" id="mqChat">
-        <div class="mq-chat-header" onclick="toggleChat()">
-            <div class="text-white font-bold text-xs flex items-center gap-2">
-                <span class="h-2 w-2 rounded-full bg-amber-400 animate-ping"></span>
-                <span>SYNDICATE_CORE OS ASISTENTE</span> 
-            </div>
-            <div class="flex items-center gap-3 text-xs" onclick="event.stopPropagation();">
-                <button onclick="controlVoz('pause')" class="text-gray-400 hover:text-white" title="Pausar">⏸</button>
-                <button onclick="controlVoz('resume')" class="text-gray-400 hover:text-white" title="Continuar">▶</button>
-                <button onclick="controlVoz('stop')" class="text-red-400 hover:text-white" title="Parar">⏹</button>
-                <span class="text-gray-600">|</span>
-                <button onclick="toggleChat()" class="text-amber-400 font-bold hover:text-amber-200">Minimizar</button>
-            </div>
+<section class="mq-chat minimized" id="mqChat">
+    <div class="mq-chat-header" onclick="toggleChat()">
+        <div class="text-white font-bold text-xs flex items-center gap-2">
+            <span class="h-2 w-2 rounded-full bg-amber-400 animate-ping"></span>
+            <span>SYNDICATE_CORE OS ASISTENTE</span> 
         </div>
-        <div class="mq-chat-body" id="mqChatBody">
-            <div class="mq-bubble">
-                💼 **Soy el asistente de MaxiQueen OS.**<br><br>Puedo ayudarte a identificar qué producto resuelve tu necesidad o mostrarte cómo está compuesto cada producto mediante sus nodos funcionales de infraestructura.
-            </div>
+        <div class="flex items-center gap-3 text-xs" onclick="event.stopPropagation();">
+            <button onclick="controlVoz('pause')" class="text-gray-400 hover:text-white" title="Pausar">⏸</button>
+            <button onclick="controlVoz('resume')" class="text-gray-400 hover:text-white" title="Continuar">▶</button>
+            <button onclick="controlVoz('stop')" class="text-red-400 hover:text-white" title="Parar">⏹</button>
+            <span class="text-gray-600">|</span>
+            <button onclick="toggleChat()" class="text-amber-400 font-bold hover:text-amber-200">Minimizar</button>
         </div>
-        <form class="mq-chat-input" id="mqChatForm">
-            <input type="file" id="mqFileInput" style="display:none">
-            <button type="button" onclick="document.getElementById('mqFileInput').click()" class="text-gray-400 hover:text-amber-400 text-lg transition">📎</button>
-            <input type="text" id="mqInput" placeholder="Preguntar por productos o arquitecturas..." class="flex-1 bg-transparent border-none text-white outline-none text-xs" autocomplete="off">
-            <button type="submit" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs transition">Analizar</button>
-        </form>
-    </section>
+    </div>
+    <div class="mq-chat-body" id="mqChatBody">
+        <div class="mq-bubble">
+            💼 <strong>Soy el asistente de MaxiQueen OS.</strong><br><br>Puedo ayudarte a identificar qué producto resuelve tu necesidad o mostrarte cómo está compuesto cada producto mediante sus nodos funcionales de infraestructura.
+        </div>
+    </div>
+    <form class="mq-chat-input" id="mqChatForm">
+        <input type="file" id="mqFileInput" style="display:none">
+        <button type="button" onclick="document.getElementById('mqFileInput').click()" class="text-gray-400 hover:text-amber-400 text-lg transition">📎</button>
+        <input type="text" id="mqInput" placeholder="Preguntar por productos o arquitecturas..." class="flex-1 bg-transparent border-none text-white outline-none text-xs" autocomplete="off">
+        <button type="submit" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs transition">Analizar</button>
+    </form>
+</section>
 
-    <!-- Lanzador flotante alternativo -->
-    <button class="mq-launcher" id="chatLauncher" onclick="toggleChat()">💬</button>
+<button class="mq-launcher" id="chatLauncher" onclick="toggleChat()">💬</button>
 
-    <!-- CONTROLADORES JAVASCRIPT AVANZADOS -->
-    <script>
-        // Sistema de Búsqueda Cruzada e Inteligente (Filtra filas comerciales y bloques técnicos simultáneamente)
-        document.getElementById('globalSearch').addEventListener('input', e => {
+<script>
+    // Sistema de Búsqueda Cruzada Inteligente (Protegido contra elementos nulos)
+    const globalSearchInput = document.getElementById('globalSearch');
+    if (globalSearchInput) {
+        globalSearchInput.addEventListener('input', e => {
             const query = e.target.value.toLowerCase().trim();
             
             // Filtrar Tabla Comercial
@@ -486,116 +484,120 @@
                 block.style.display = nodeData.includes(query) ? '' : 'none';
             });
         });
-
-        let chatOpen = false;
-        let chatHistory = [];
-        let speechUtterance = null;
-
-        function toggleChat() {
-            const chat = document.getElementById('mqChat');
-            const launcher = document.getElementById('chatLauncher');
-            chatOpen = !chatOpen;
-            chat.classList.toggle('minimized', !chatOpen);
-            launcher.classList.toggle('hidden', chatOpen);
-            if (chatOpen) setTimeout(() => {
-                const body = document.getElementById('mqChatBody');
-                body.scrollTop = body.scrollHeight;
-            }, 80);
-        }
-
-        // Controladores de Voz (TTS) para reportes directivos
-        function hablar(texto) {
-            if (!window.speechSynthesis) return;
-            window.speechSynthesis.cancel();
-            const limpio = texto.replace(/[*#`_\-➔]/g, '');
-            speechUtterance = new SpeechSynthesisUtterance(limpio);
-            speechUtterance.lang = 'es-ES';
-            window.speechSynthesis.speak(speechUtterance);
-        }
-
-        function controlVoz(accion) {
-            if (!window.speechSynthesis) return;
-            if (accion === 'pause') window.speechSynthesis.pause();
-            if (accion === 'resume') window.speechSynthesis.resume();
-            if (accion === 'stop') window.speechSynthesis.cancel();
-        }
-
-        // Toggle global para ingenieros apurados
-        let accordionsOpen = true;
-        function toggleAllAccordions() {
-            accordionsOpen = !accordionsOpen;
-            document.querySelectorAll('#infrastructureGrid .infra-block').forEach(block => {
-                block.style.opacity = accordionsOpen ? '1' : '0.35';
-            });
-        }
-
-        // Manejo del formulario simulado de interacción del ecosistema
-        document.getElementById('mqChatForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const input = document.getElementById('mqInput');
-            const userMsg = input.value.trim();
-            if (!userMsg) return;
-
-            // Renderizar burbuja de usuario
-            const body = document.getElementById('mqChatBody');
-            const userBubble = document.createElement('div');
-            userBubble.className = 'mq-bubble user';
-            userBubble.innerText = userMsg;
-            body.appendChild(userBubble);
-            input.value = '';
-            body.scrollTop = body.scrollHeight;
-
-            // Simulación de respuesta orientada a Producto/Estructura Corporativa
-            const loadingId = 'loading-' + Date.now();
-            const loadingBubble = document.createElement('div');
-            loadingBubble.className = 'mq-bubble text-amber-400 animate-pulse';
-            loadingBubble.id = loadingId;
-            loadingBubble.innerText = '⚡ Procesando a través del Router Corporativo de MaxiQueen OS...';
-            body.appendChild(loadingBubble);
-            body.scrollTop = body.scrollHeight;
-
-            setTimeout(() => {
-    // 1. Remover el indicador de carga
-    const loadingElem = document.getElementById(loadingId);
-    if (loadingElem) loadingElem.remove();
-
-    // 2. Crear la burbuja de la IA
-    const aiBubble = document.createElement('div');
-    aiBubble.className = 'mq-bubble';
-    
-    // Definir la respuesta base
-    let respuesta = `Mapeando requerimiento empresarial. Recomiendo evaluar el portafolio comercial de **MaxiQueen Enterprise Core** para asegurar estabilidad de APIs en base a su consulta.`;
-    
-    // Evaluar intenciones/palabras clave
-    const msgLower = userMsg.toLowerCase();
-    if (msgLower.includes('cfo') || msgLower.includes('auditor') || msgLower.includes('financiero')) {
-        respuesta = `Para requerimientos financieros, el producto idóneo es **Elite Financial Auditor & Business Intelligence** (respaldado por los nodos ID1 e ID2 en infraestructura). Resuelve auditorías lingüísticas masivas en segundos.`;
-    } else if (msgLower.includes('kyc') || msgLower.includes('documento') || msgLower.includes('nexus')) {
-        respuesta = `El producto **Quantum Nexus** procesa ingesta documental mediante OCR estructurado (nodos internos ID5 e ID11) aislando los datos sensibles por políticas estrictas de privacidad.`;
-    } else if (msgLower.includes('landing') || msgLower.includes('marketing') || msgLower.includes('whatsapp')) {
-        respuesta = `La suite comercial **AI Commerce & Creator Suite** integra flujos dinámicos automáticos desde una idea hasta el lead en CRM, apalancado en los microservicios ID12, ID13 e ID14.`;
     }
 
-    // 3. Pasar el texto limpio a la función de Voz antes de transformarlo a HTML
-    const textoLimpioParaVoz = respuesta.replace(/\*\*/g, '');
-    hablar(textoLimpioParaVoz);
+    let chatOpen = false;
+    let speechUtterance = null;
 
-    // 4. Formatear la respuesta para el HTML (Saltos de línea y Negritas de Markdown)
-    let htmlFormateado = respuesta
-        .replace(/\n/g, '<br>')
-        .replace(/\*\*(.*?)\*\*/g, '<strong class="text-amber-400 font-bold">$1</strong>'); // Opcional: Le da el color dorado corporate a las negritas
+    function toggleChat() {
+        const chat = document.getElementById('mqChat');
+        const launcher = document.getElementById('chatLauncher');
+        if (!chat || !launcher) return;
 
-    aiBubble.innerHTML = htmlFormateado;
-    
-    // 5. Asegurar que 'chatBody' sea el contenedor ".mq-chat-body"
-    const chatBody = document.querySelector('.mq-chat-body') || body;
-    chatBody.appendChild(aiBubble);
-    
-    // Auto-scroll al fondo
-    chatBody.scrollTop = chatBody.scrollHeight;
+        chatOpen = !chatOpen;
+        chat.classList.toggle('minimized', !chatOpen);
+        launcher.classList.toggle('hidden', chatOpen);
+        
+        if (chatOpen) {
+            setTimeout(() => {
+                const body = document.getElementById('mqChatBody');
+                if (body) body.scrollTop = body.scrollHeight;
+            }, 80);
+        }
+    }
 
-}, 950);
+    // Controladores de Voz (TTS) para reportes directivos
+    function hablar(texto) {
+        if (!window.speechSynthesis) return;
+        window.speechSynthesis.cancel(); // Detener cualquier lectura previa de inmediato
+        
+        const limpio = texto.replace(/[*#`_\-➔]/g, '');
+        speechUtterance = new SpeechSynthesisUtterance(limpio);
+        speechUtterance.lang = 'es-ES';
+        window.speechSynthesis.speak(speechUtterance);
+    }
+
+    function controlVoz(accion) {
+        if (!window.speechSynthesis) return;
+        if (accion === 'pause') window.speechSynthesis.pause();
+        if (accion === 'resume') window.speechSynthesis.resume();
+        if (accion === 'stop') window.speechSynthesis.cancel();
+    }
+
+    // Toggle global para ingenieros apurados
+    let accordionsOpen = true;
+    function toggleAllAccordions() {
+        accordionsOpen = !accordionsOpen;
+        document.querySelectorAll('#infrastructureGrid .infra-block').forEach(block => {
+            block.style.opacity = accordionsOpen ? '1' : '0.35';
         });
-    </script>
+    }
+
+    // Manejo del formulario de interacción del ecosistema
+    document.getElementById('mqChatForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const input = document.getElementById('mqInput');
+        const body = document.getElementById('mqChatBody');
+        if (!input || !body) return;
+
+        const userMsg = input.value.trim();
+        if (!userMsg) return;
+
+        // Renderizar burbuja de usuario
+        const userBubble = document.createElement('div');
+        userBubble.className = 'mq-bubble user';
+        userBubble.innerText = userMsg;
+        body.appendChild(userBubble);
+        input.value = '';
+        body.scrollTop = body.scrollHeight;
+
+        // Simulación de respuesta orientada a Producto/Estructura Corporativa
+        const loadingId = 'loading-' + Date.now();
+        const loadingBubble = document.createElement('div');
+        loadingBubble.className = 'mq-bubble text-amber-400 animate-pulse';
+        loadingBubble.id = loadingId;
+        loadingBubble.innerText = '⚡ Procesando a través del Router Corporativo de MaxiQueen OS...';
+        body.appendChild(loadingBubble);
+        body.scrollTop = body.scrollHeight;
+
+        setTimeout(() => {
+            // 1. Remover el indicador de carga
+            const loadingElem = document.getElementById(loadingId);
+            if (loadingElem) loadingElem.remove();
+
+            // 2. Crear la burbuja de la IA
+            const aiBubble = document.createElement('div');
+            aiBubble.className = 'mq-bubble';
+            
+            // Definir la respuesta base
+            let respuesta = `Mapeando requerimiento empresarial. Recomiendo evaluar el portafolio comercial de **MaxiQueen Enterprise Core** para asegurar estabilidad de APIs en base a su consulta.`;
+            
+            // Evaluar intenciones/palabras clave
+            const msgLower = userMsg.toLowerCase();
+            if (msgLower.includes('cfo') || msgLower.includes('auditor') || msgLower.includes('financiero')) {
+                respuesta = `Para requerimientos financieros, el producto idóneo es **Elite Financial Auditor & Business Intelligence** (respaldado por los nodos ID1 e ID2 en infraestructura). Resuelve auditorías lingüísticas masivas en segundos.`;
+            } else if (msgLower.includes('kyc') || msgLower.includes('documento') || msgLower.includes('nexus')) {
+                respuesta = `El producto **Quantum Nexus** procesa ingesta documental mediante OCR estructurado (nodos internos ID5 e ID11) aislando los datos sensibles por políticas estrictas de privacidad.`;
+            } else if (msgLower.includes('landing') || msgLower.includes('marketing') || msgLower.includes('whatsapp')) {
+                respuesta = `La suite comercial **AI Commerce & Creator Suite** integra flujos dinámicos automáticos desde una idea hasta el lead en CRM, apalancado en los microservicios ID12, ID13 e ID14.`;
+            }
+
+            // 3. Pasar el texto a la función de Voz antes de transformarlo a HTML
+            hablar(respuesta);
+
+            // 4. Formatear la respuesta para el HTML (Saltos de línea y Negritas de Markdown)
+            let htmlFormateado = respuesta
+                .replace(/\n/g, '<br>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong class="text-amber-400 font-bold">$1</strong>');
+
+            aiBubble.innerHTML = htmlFormateado;
+            
+            // 5. Inserción segura en el contenedor
+            body.appendChild(aiBubble);
+            body.scrollTop = body.scrollHeight;
+
+        }, 950);
+    });
+</script>
 </body>
 </html>
