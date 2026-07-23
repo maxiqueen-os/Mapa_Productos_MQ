@@ -5,34 +5,66 @@ export default async function handler(req, res) {
   }
 
   const { message } = req.body;
-  // Vercel inyecta automáticamente esta variable desde tu panel
-  const apiKey = process.env.GEMINI_API_KEY_1;
 
-  if (!apiKey) {
-    return res.status(500).json({ error: 'Falta la configuración de infraestructura (API Key 1).' });
+  // Recolectar todas las llaves de infraestructura disponibles en Vercel
+  const apiKeys = [
+    process.env.GEMINI_API_KEY_1,
+    process.env.GEMINI_API_KEY_2,
+    process.env.GEMINI_API_KEY_3,
+    process.env.GEMINI_API_KEY_4,
+    process.env.GEMINI_API_KEY_5
+  ].filter(Boolean); // Filtra automáticamente las que estén vacías o no configuradas
+
+  if (apiKeys.length === 0) {
+    return res.status(500).json({ error: 'Falta la configuración de infraestructura (No hay API Keys de Gemini detectadas).' });
   }
 
-  try {
-    // Conexión directa con el modelo ultrarrápido Gemini 1.5 Flash
-    const googleResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: message }] }]
-      })
-    });
+  let textAI = null;
+  let lastError = null;
 
-    const data = await googleResponse.json();
+  // Sistema de rotación y respaldo (Fallback): Prueba las llaves en orden hasta que una funcione
+  for (let i = 0; i < apiKeys.length; i++) {
+    const apiKey = apiKeys[i];
     
-    // Extraemos el texto de Gemini
-    const textAI = data.candidates?.[0]?.content?.parts?.[0]?.text || "El núcleo no devolvió una respuesta válida.";
+    try {
+      const googleResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: message }] }]
+        })
+      });
 
-    // 🚨 AQUÍ ESTÁ EL TRUCO: Lo enviamos como 'response' para que tu HTML lo lea a la primera sin cambiar nada
-    return res.status(200).json({ response: textAI });
+      const data = await googleResponse.json();
 
-  } catch (error) {
-    return res.status(500).json({ error: 'Error en el enrutador de IA: ' + error.message });
+      // Si la API de Google da error (ej. límite de cuota excedido), guardamos el error y probamos la siguiente llave
+      if (!googleResponse.ok) {
+        lastError = data.error?.message || `Error HTTP ${googleResponse.status}`;
+        continue; 
+      }
+
+      // Extraemos el texto de Gemini
+      textAI = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      
+      if (textAI) {
+        break; // ¡Éxito! Rompemos el ciclo porque ya conseguimos respuesta
+      }
+
+    } catch (error) {
+      lastError = error.message;
+      continue; // Si hay un fallo de red, pasa a la siguiente llave del pool
+    }
   }
+
+  // Si ninguna de las llaves pudo responder
+  if (!textAI) {
+    return res.status(500).json({ 
+      error: 'Error en el enrutador de IA: Todas las llaves del clúster fallaron o alcanzaron su límite. Detalle: ' + (lastError || 'Desconocido') 
+    });
+  }
+
+  // Retornamos la respuesta como 'response' para que tu interfaz la lea de inmediato
+  return res.status(200).json({ response: textAI });
 }
